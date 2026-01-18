@@ -1,0 +1,38 @@
+name: test
+author: yj-devsec
+description: 'Use test job in github action'
+inputs:
+  NODE_VERSION:
+    description: 'Set node version'
+    required: true
+    default: '18'
+  WORKING_DIRECTORY:
+    description: 'Set work directory'
+    required: true
+    default: 'my-app'
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/setup-node@v3
+    with:
+      node-version: ${{ inputs.NODE_VERSION }}
+  - name: Cache Node.js modules
+    uses: actions/cache@v3
+    with:
+      path: ~/.npm
+      key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      restore-keys: |
+        ${{ runner.os }}-node-
+  - name: Install dependencies
+    shell: bash
+    run: |
+      cd ${{ inputs.WORKING_DIRECTORY }}
+      npm ci
+  - name: npm build
+    shell: bash
+    run: |
+      cd ${{ inputs.WORKING_DIRECTORY }}
+      npm run build
+      
+        

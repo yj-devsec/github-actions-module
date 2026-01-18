@@ -1,0 +1,41 @@
+name: Slack
+author: yj-devsec
+description: 'Use slack module in github action'
+inputs:
+  DEPLOY_STEP_STATUS:
+    description: 'set deploy step status'
+    required: true
+    default: 'success'
+  ENVIRONMENT:
+    description: 'set environment'
+    required: true
+    default: 'dev'
+  SLACK_WEBHOOK_URL:
+    description: 'set slack webhook url'
+    required: true
+    default: ''
+
+runs:
+  using: "composite"
+  steps:
+  - name: notify
+    uses: slackapi/slack-github-action@v1.24.0
+    with:
+      payload: |
+        {
+          "text": "message",
+          "blocks": [
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "Environment : ${{ inputs.ENVIRONMENT }}, Deploy Result: ${{ inputs.DEPLOY_STEP_STATUS  }}, Repository: ${{ github.repository }}."
+              }
+            }
+          ]
+        }
+    env:
+      SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
+      SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      
+        

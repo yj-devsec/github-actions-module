@@ -1,0 +1,23 @@
+name: aws
+author: yj-devsec
+description: 'Use aws module in github action'
+inputs:
+  AWS_REGION:
+    description: 'Set AWS REGION'
+    required: true
+    default: 'ap-northeast-1'
+  AWS_ROLE_TO_ASSUME:
+    description: 'Set AWS role to assume'
+    required: true
+    default: 'GithubActions'
+
+runs:
+  using: "composite"
+  steps:
+  - name: Configure AWS Credentials
+    id: credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-region: ${{ inputs.AWS_REGION }}
+      role-to-assume: ${{ inputs.AWS_ROLE_TO_ASSUME }}
+      

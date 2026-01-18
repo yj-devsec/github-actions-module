@@ -1,0 +1,54 @@
+name: deploy
+author: yj-devsec
+description: 'Use deploy job in github action'
+inputs:
+  KUBECTL_VERSION:
+    description: 'Set kubectl version'
+    required: false
+    default: latest
+  HELM_VERSION:
+    description: 'Set helm version'
+    required: false
+    default: v3.11.1
+  CLUSTER_NAME:
+    description: 'Set cluster name'
+    required: true
+    default: 'github-actions'
+  RELEASE_NAME:
+    description: 'Set release name'
+    required: true
+    default: 'my-app'    
+  HELM_CHART_PATH:
+    description: 'Set helm chart path'
+    required: true
+    default: 'helm-chart'
+  NAMESPACE:
+    description: 'Set eks namespace'
+    required: true
+    default: 'my-app-dev' 
+  REPOSITORY:
+    description: 'Set image repository'
+    required: true
+    default: ''    
+
+runs:
+  using: "composite"
+  steps:
+  - name: setup kubectl
+    uses: azure/setup-kubectl@v3
+    with:
+      version: ${{ inputs.KUBECTL_VERSION }}
+  - name: setup helm
+    uses: azure/setup-helm@v3
+    with:
+      version: ${{ inputs.HELM_VERSION }}
+  - name: access kubernetes
+    shell: bash
+    run: |
+      aws eks update-kubeconfig --name ${{ inputs.CLUSTER_NAME }}
+  - name: deploy
+    shell: bash
+    run: |
+      helm upgrade --install ${{ inputs.RELEASE_NAME }} ${{ inputs.HELM_CHART_PATH }} --create-namespace --namespace ${{ inputs.NAMESPACE }} \
+      --set image.tag=${{ github.sha }} \
+      --set image.repository=${{ inputs.REPOSITORY }}

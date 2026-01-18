@@ -1,0 +1,30 @@
+name: image build
+author: yj-devsec
+description: 'Use image-build in github action'
+inputs:
+  REPOSITORY:
+    description: 'Set aws ecr registry'
+    required: true
+    default: 'my-app'
+  REGISTRY:
+    description: 'Set aws ecr repository'
+    required: true
+    default: ''
+  DOCKERFILE_PATH:
+    description: 'Set aws ecr repository'
+    required: false
+    default: 'Dockerfile'  
+
+runs:
+  using: "composite"
+  steps:
+  - name: Login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v2
+    with:
+      mask-password: 'true'
+  - name: docker build & push
+    shell: bash
+    run: |
+      docker build -f ${{ inputs.DOCKERFILE_PATH }} --tag ${{ inputs.REGISTRY }}/${{ inputs.REPOSITORY }}:${{ github.sha }} .
+      docker push ${{ inputs.REGISTRY }}/${{ inputs.REPOSITORY }}:${{ github.sha }}

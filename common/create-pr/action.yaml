@@ -1,0 +1,32 @@
+name: create-pr
+author: yj-devsec
+description: 'Use create-pr job in github action'
+inputs:
+  PERSONAL_ACCESS_TOKEN:
+    description: 'set pat'
+    required: true
+    default: ''
+  HEAD:
+    description: 'set head branch'
+    required: true
+    default: 'release/v0.0.0'
+  BASE:
+    description: 'set base branch'
+    required: true
+    default: 'master'
+runs:
+  using: "composite"
+  steps:
+  - name: gh auth login
+    shell: bash
+    run: |
+      echo ${{ inputs.PERSONAL_ACCESS_TOKEN }} | gh auth login --with-token
+  - name: create branch
+    shell: bash
+    run: |
+      git checkout -b ${{ inputs.HEAD }}
+      git push origin ${{ inputs.HEAD }}
+  - name: Create Pull Request
+    shell: bash
+    run: |
+      gh pr create --base ${{ inputs.BASE }} --head ${{ inputs.HEAD }} --title "${{ inputs.HEAD }} -> master" --body "release pr"
